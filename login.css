@@ -1,0 +1,139 @@
+/* Global reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #057a55, #016241);
+  color: #fff;
+}
+
+/* Container */
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+
+/* Form box */
+.form-box {
+  background: #1c1f24;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.form-box h2 {
+  margin-bottom: 20px;
+  font-size: 1.8em;
+  color: #19c37d;
+}
+
+/* Input group */
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #19c37d;
+  outline: none;
+  background: #2a2f36;
+  color: #fff;
+}
+
+.input-group input:focus {
+  border-color: #13a169;
+}
+
+/* Options */
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85em;
+  margin-bottom: 15px;
+}
+
+.options a {
+  color: #19c37d;
+  text-decoration: none;
+}
+
+.options a:hover {
+  text-decoration: underline;
+}
+
+/* Button */
+.btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(45deg,#053924,#13a169);
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  /* background: #13a169; */
+  box-shadow: 0 0 25px #053924, 0 0 40px #13a169;
+      transform: translateY(-2px);
+}
+
+/* Register text */
+.register-text {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.register-text a {
+  color: #19c37d;
+  text-decoration: none;
+}
+.register-text a:hover {
+  text-decoration: underline;
+}
+
+/* Register button */
+.register-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  background: linear-gradient(45deg,#053924,#13a169);
+  color: #fff;
+  border: none;
+  padding: 12px 0;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.register-btn:hover {
+  box-shadow: 0 0 25px #053924, 0 0 40px #13a169;
+      transform: translateY(-2px);
+}

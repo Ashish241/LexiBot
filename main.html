@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexiBot</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="login.html">
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <button class="btn toggle-btn" onclick="toggleSidebar()">☰</button>
+    <p class="sidebar-title">
+      <img src="logo/chats.png" alt="">
+      <span>Chats</span>
+    </p>
+    <p class="sidebar-link" id="newChatBtn">
+      <img src="logo/newchat.png" alt="">
+      <span>New chat</span>
+    </p>
+    <p class="sidebar-link">
+      <img src="logo/recentchat.png" alt="">
+      <span>Recent chats</span>
+    </p>
+
+    <div style="flex: 1"></div> <!-- Pushes login button to bottom -->
+    <a href="login.html" class="sidebar-login">
+      <img src="logo/login.png" alt="">
+      <span>Login</span>
+    </a>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <button class="mode-toggle" id="modeToggle" onclick="toggleMode()">🌙</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="logo">
+      <h2>LexiBot</h2>
+    </div>
+    <div class="header-title">
+      <h1>Demystify Legal Documents with AI</h1>
+    </div>
+
+    <!-- Search / Upload Bar -->
+    <div class="container">
+      <div id="selectedFileBox" style="display:none; gap: 2px; align-items: center;" class="selected-file-box">
+        <span id="selectedFileName"></span>
+        <button id="removeFileBtn" class="remove-file-btn" title="Remove file">✖</button>
+      </div>
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Or Paste Text Here..." />
+        <label for="file-upload" class="upload-btn">📂</label>
+        <input id="file-upload" type="file" accept=".pdf,.txt,.docx" hidden />
+        <button class="search-btn" id="searchBtn">➤</button>
+      </div>
+    </div>
+
+    <!-- Document Scanner Preview -->
+    <div class="doc-scanner">
+      <div class="doc-preview-section">
+        <h2>Document Preview &amp; Analysis</h2>
+        <div class="doc-preview">
+          <div class="doc-image">
+            <div class="doc-page" id="docPreview">
+              <p style="color:#888;">Your document preview will appear here.</p>
+            </div>
+          </div>
+          <div class="doc-analysis" id="docAnalysis">
+            <button id="langToggleBtn" class="lang-toggle-btn">हिन्दी</button>
+            <!-- Analysis content will be injected here -->
+            <div id="analysisContent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <!-- Floating Chat Button -->
+<button class="chat-toggle" onclick="toggleChat()">💬</button>
+
+<!-- Chat Box -->
+<div class="chatbox" id="chatbox">
+  <div class="chat-header">
+    <span>LexiBot Assistant</span>
+    <button onclick="toggleChat()">✖</button>
+  </div>
+  <div class="chat-body" id="chat-body">
+    <p class="bot-msg">Hi! Ask me a question about this Document.</p>
+  </div>
+  <div class="chat-input">
+    <input id="user-input" type="text" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+  <script>
+   function toggleChat() {
+    document.getElementById("chatbox").classList.toggle("open");
+  }
+
+
+    // Predefined Q&A from rental agreement
+    const qaPairs = {
+      "when does the rent agreement start and end": 
+        "The rent agreement starts from the Starting Date of Agreement and is valid until the Expiry Date. It can be extended with mutual consent.",
+
+      "how much is the monthly rent": 
+        "The monthly rent is Rs. 20,000, excluding electricity and water bills. Rent must be paid on or before the 7th day of each month.",
+
+      "who pays the electricity and water bills": 
+        "The tenant pays electricity and water bills as per authority bills. The owner clears dues till possession, and the tenant clears dues till vacating.",
+
+      "is there a security deposit": 
+        "Yes. The tenant will pay an interest-free, refundable security deposit of Rs. (Amount). It is refunded at the end after adjusting dues or damages.",
+
+      "can the tenant sublet the property": 
+        "No, subletting or assigning the property is strictly not allowed. The premises can only be used for residential purposes.",
+
+      "who is responsible for repairs": 
+        "The tenant handles minor day-to-day repairs. The owner handles major structural repairs.",
+
+      "can the tenant make alterations to the property": 
+        "No structural changes without the owner’s consent. Tenants may install ACs/electrical gadgets at their cost and remove them when vacating.",
+
+      "can the owner inspect the property": 
+        "Yes, The owner can visit once a month for inspection or repairs, personally or through agents.",
+
+      "how can the agreement be terminated early": 
+        "Either party may terminate the agreement by giving one month’s prior written notice.",
+
+      "what happens if the tenant does not vacate": 
+        "If not vacated, the tenant must pay damages equal to twice the monthly rent until the premises are vacated.",
+
+      "who pays property tax and society fees": 
+        "The owner pays all property taxes and welfare association fees.",
+
+      "what happens in case of a dispute": 
+        "Disputes will be settled under the jurisdiction of the specified city’s civil courts.",
+
+      "who bears the cost of registration and stamp duty": 
+        "The costs of stamp duty, court fee, and lawyer/coordinator are equally shared by the owner and tenant."
+    };
+
+    function sendMessage() {
+    const inputField = document.getElementById("user-input");
+    const chatBody = document.getElementById("chat-body");
+    const userText = inputField.value.trim().toLowerCase();
+    if (!userText) return;
+
+    // Show user message
+    const userMsg = document.createElement("p");
+    userMsg.className = "user-msg";
+    userMsg.innerText = inputField.value;
+    chatBody.appendChild(userMsg);
+
+    // Bot reply
+    let botReply = "Sorry, I don’t have an answer for that.";
+    for (const q in qaPairs) {
+      if (userText.includes(q)) {
+        botReply = qaPairs[q];
+        break;
+      }
+    }
+
+    const botMsg = document.createElement("p");
+    botMsg.className = "bot-msg";
+    botMsg.innerText = botReply;
+    chatBody.appendChild(botMsg);
+
+    // Scroll to bottom
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    // Clear input
+    inputField.value = "";
+  }
+
+  // Press Enter to send
+  document.getElementById("user-input").addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  </script>
+  <!-- JS -->
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("collapsed");
+      document.querySelector(".main-content").classList.toggle("expanded");
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+      const modeBtn = document.getElementById("modeToggle");
+      if (document.body.classList.contains("dark-mode")) {
+        modeBtn.textContent = "☀️";
+      } else {
+        modeBtn.textContent = "🌙";
+      }
+    }
+
+    function toggleChat() {
+      document.getElementById("chatbox").classList.toggle("open");
+    }
+
+    // Store selected file until user clicks submit/upload
+    let selectedFile = null;
+
+    const selectedFileBox = document.getElementById('selectedFileBox');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+    const fileInput = document.getElementById('file-upload');
+    const docAnalysis = document.getElementById('docAnalysis');
+    const analysisContent = document.getElementById('analysisContent');
+    const langToggleBtn = document.getElementById('langToggleBtn');
+
+    const analysisTextEN = `
+    <h3>1. Summary</h3>
+    <p>This agreement sets the rules between Owner (landlord) and Tenant (you) regarding a specific property.</p>
+    <ul>
+      <li><strong>Duration & Renewal:</strong> Rent starts on a given date and ends on an expiry date but can be extended if both agree.</li>
+      <li><strong>Rent & Charges:</strong> Tenant pays monthly rent + separate charges for water, electricity, maintenance, and generator/elevator running costs. Rent is due by the 7th of every month.</li>
+      <li><strong>Security Deposit:</strong> Tenant pays a refundable deposit (interest-free). Owner must return it at the end, after deducting damages. If Owner delays refund, tenant can legally keep occupying without paying further rent until refund is made.</li>
+      <li><strong>Repairs:</strong> Minor repairs = tenant covers; major/structural repairs = owner covers.</li>
+      <li><strong>Use Restrictions:</strong> Tenant must use only for residence; cannot sublet or commercialize the space.</li>
+      <li><strong>Owner’s Rights:</strong> Owner can inspect once a month or for repairs.</li>
+      <li><strong>Taxes:</strong> Owner pays government property taxes; tenant pays utilities.</li>
+      <li><strong>Termination:</strong> Either side can end the agreement with at least one month’s notice.</li>
+      <li><strong>Non-vacation Consequence:</strong> If tenant overstays, tenant pays double rent as damages until property is returned.</li>
+      <li><strong>Legal Jurisdiction:</strong> Disputes handled in specified local civil courts.</li>
+      <li><strong>Registration:</strong> Agreement must be registered with registrar; stamp duty & lawyer charges split equally.</li>
+    </ul>
+    <h3>2. Key Risks</h3>
+    <ul>
+      <li><strong>No Rent Cap:</strong> Rent is fixed here but no clause to restrict increase on renewal → landlord could hike later.</li>
+      <li><strong>Security Deposit Dispute:</strong> Though tenant can “stay rent-free” until deposit return, practically this may lead to friction or legal hassle.</li>
+      <li><strong>Utility/Extra Charges:</strong> Tenant shoulders multiple add-on costs (maintenance, generator fuel, elevator running, lawn upkeep). This can be unpredictable.</li>
+      <li><strong>Owner Inspection:</strong> Owner has right to visit monthly — may feel intrusive if abused.</li>
+      <li><strong>Overstay Penalty:</strong> Double rent if you don’t vacate → can be financially painful.</li>
+      <li><strong>One-Month Termination Notice:</strong> Landlord can ask you to vacate with just a month’s notice. This is often unfavorable for tenants seeking stability.</li>
+      <li><strong>Repairs Responsibility:</strong> “Minor repairs” left vague → owner could argue most issues are tenant’s responsibility.</li>
+      <li><strong>Shared Registration Costs:</strong> Half the stamp duty and legal fees → an additional upfront expense.</li>
+    </ul>
+    <h3>3. Possible Alternatives / Negotiation Angles</h3>
+    <ul>
+      <li><strong>Security Deposit Return Clause:</strong> Request fixed timeline for refund (e.g., 15 days max), to avoid prolonged disputes.</li>
+      <li><strong>Longer Notice:</strong> Negotiate 2–3 months’ notice period for stability.</li>
+      <li><strong>Rent Escalation Clause:</strong> Define future rent increases in the agreement (e.g., maximum 5–10% annually).</li>
+      <li><strong>Maintenance Transparency:</strong> Demand a clear breakdown of monthly maintenance charges, not a blank check.</li>
+      <li><strong>Repairs Language:</strong> Define what counts as “minor” vs “major” to avoid finger-pointing (e.g., plumbing leaks above ₹1,000 = owner’s responsibility).</li>
+      <li><strong>Inspection Frequency:</strong> Limit landlord visits (say “only with 48-hr notice, max once per two months”).</li>
+      <li><strong>Alternative Overstay Penalty:</strong> Negotiate damages equal to rent + small surcharge (say 1.25x rent) instead of 2x.</li>
+    </ul>
+    <p><strong> In short:</strong><br>
+    This agreement heavily protects the owner’s interests (quite common in templates). The big tenant risks are deposit return delays, sudden early termination, and vague repair/charge conditions. Negotiating clarity and balance in those areas gives you more stability and financial predictability.<br>
+    Think of this agreement as a dance: the owner leads on property rights, but you can set the rhythm on how much rent stress and uncertainty you’re willing to tolerate.
+    </p>
+    `;
+
+    const analysisTextHI = `
+    <h3>1. सारांश</h3>
+    <p>यह अनुबंध मालिक (मकान मालिक) और किरायेदार (आप) के बीच एक निश्चित संपत्ति के लिए नियम तय करता है।</p>
+    <ul>
+      <li><strong>अवधि और नवीनीकरण:</strong> किराया एक निश्चित तिथि से शुरू होता है और समाप्ति तिथि पर समाप्त होता है, लेकिन दोनों सहमत हों तो बढ़ाया जा सकता है।</li>
+      <li><strong>किराया और शुल्क:</strong> किरायेदार मासिक किराया देता है + पानी, बिजली, रखरखाव और जनरेटर/लिफ्ट के खर्च अलग से देता है। किराया हर महीने की 7 तारीख तक देना होता है।</li>
+      <li><strong>सुरक्षा जमा:</strong> किरायेदार ब्याज-मुक्त जमा देता है। मालिक को अंत में, नुकसान काटकर, वापस करना होता है। यदि मालिक देर करता है तो किरायेदार बिना किराया दिए तब तक रह सकता है जब तक जमा वापस न हो।</li>
+      <li><strong>मरम्मत:</strong> छोटी मरम्मत = किरायेदार; बड़ी/संरचनात्मक मरम्मत = मालिक।</li>
+      <li><strong>उपयोग प्रतिबंध:</strong> केवल निवास के लिए उपयोग; सबलेट या व्यवसायिक उपयोग नहीं।</li>
+      <li><strong>मालिक के अधिकार:</strong> मालिक महीने में एक बार या मरम्मत के लिए निरीक्षण कर सकता है।</li>
+      <li><strong>कर:</strong> मालिक संपत्ति कर देता है; किरायेदार यूटिलिटी बिल देता है।</li>
+      <li><strong>समाप्ति:</strong> कोई भी पक्ष कम से कम एक महीने की सूचना देकर अनुबंध समाप्त कर सकता है।</li>
+      <li><strong>न न छोड़ने का परिणाम:</strong> किरायेदार ओवरस्टे करता है तो दोगुना किराया देना होगा।</li>
+      <li><strong>कानूनी अधिकार क्षेत्र:</strong> विवाद स्थानीय सिविल कोर्ट में सुलझेंगे।</li>
+      <li><strong>पंजीकरण:</strong> अनुबंध का पंजीकरण जरूरी; स्टाम्प ड्यूटी और वकील शुल्क आधा-आधा।</li>
+    </ul>
+    <h3>2. मुख्य जोखिम</h3>
+    <ul>
+      <li><strong>किराया सीमा नहीं:</strong> किराया तय है लेकिन नवीनीकरण पर बढ़ोतरी की कोई सीमा नहीं है।</li>
+      <li><strong>सुरक्षा जमा विवाद:</strong> किरायेदार "बिना किराया दिए रह सकता है" लेकिन व्यवहार में विवाद हो सकता है।</li>
+      <li><strong>अतिरिक्त शुल्क:</strong> किरायेदार कई अतिरिक्त खर्च उठाता है, जो अनिश्चित हो सकते हैं।</li>
+      <li><strong>मालिक निरीक्षण:</strong> मालिक को मासिक निरीक्षण का अधिकार — बार-बार हो तो असुविधाजनक।</li>
+      <li><strong>ओवरस्टे पेनल्टी:</strong> न छोड़ने पर दोगुना किराया देना होगा।</li>
+      <li><strong>एक महीने की नोटिस:</strong> मालिक एक महीने की नोटिस पर खाली करा सकता है — किरायेदार के लिए अस्थिरता।</li>
+      <li><strong>मरम्मत जिम्मेदारी:</strong> "छोटी मरम्मत" अस्पष्ट — मालिक अधिक जिम्मेदारी डाल सकता है।</li>
+      <li><strong>पंजीकरण लागत साझा:</strong> स्टाम्प ड्यूटी और वकील शुल्क आधा-आधा — अतिरिक्त खर्च।</li>
+    </ul>
+    <h3>3. संभावित विकल्प / बातचीत के बिंदु</h3>
+    <ul>
+      <li><strong>सुरक्षा जमा वापसी:</strong> निश्चित समय सीमा (जैसे 15 दिन) तय करें, ताकि विवाद न हो।</li>
+      <li><strong>लंबी नोटिस:</strong> स्थिरता के लिए 2–3 महीने की नोटिस मांगें।</li>
+      <li><strong>किराया वृद्धि सीमा:</strong> भविष्य की वृद्धि तय करें (जैसे अधिकतम 5–10% वार्षिक)।</li>
+      <li><strong>रखरखाव पारदर्शिता:</strong> मासिक खर्च का स्पष्ट विवरण मांगें।</li>
+      <li><strong>मरम्मत भाषा:</strong> "छोटी" और "बड़ी" मरम्मत स्पष्ट करें (जैसे ₹1,000 से ऊपर मालिक की जिम्मेदारी)।</li>
+      <li><strong>निरीक्षण आवृत्ति:</strong> मालिक की विजिट सीमित करें (जैसे 48 घंटे की सूचना, अधिकतम दो महीने में एक बार)।</li>
+      <li><strong>ओवरस्टे पेनल्टी विकल्प:</strong> दोगुना किराया की जगह 1.25x किराया या मामूली जुर्माना तय करें।</li>
+    </ul>
+    <p><strong> संक्षेप में:</strong><br>
+    यह अनुबंध मालिक के हितों की अधिक रक्षा करता है। किरायेदार के लिए मुख्य जोखिम हैं: जमा वापसी में देरी, अचानक समाप्ति, और मरम्मत/खर्च की अस्पष्टता। स्पष्टता और संतुलन की बातचीत से स्थिरता और वित्तीय पूर्वानुमान बढ़ता है।<br>
+    इसे एक डांस की तरह समझें: मालिक संपत्ति अधिकारों में आगे है, लेकिन आप किराया और अनिश्चितता की सीमा तय कर सकते हैं。
+    </p>
+    `;
+
+    let currentLang = "EN";
+
+    // Show analysis only if document/text is submitted
+    function setAnalysisContent(showAnalysis) {
+      if (showAnalysis) {
+        analysisContent.innerHTML = currentLang === "EN" ? analysisTextEN : analysisTextHI;
+        langToggleBtn.style.display = "block";
+        langToggleBtn.textContent = currentLang === "EN" ? "हिन्दी" : "English";
+      } else {
+        analysisContent.innerHTML = "";
+        langToggleBtn.style.display = "none";
+      }
+    }
+
+    langToggleBtn.addEventListener('click', function () {
+      currentLang = currentLang === "EN" ? "HI" : "EN";
+      setAnalysisContent(true);
+    });
+
+    fileInput.addEventListener('change', function (event) {
+      selectedFile = event.target.files[0] || null;
+      if (selectedFile) {
+        selectedFileBox.style.display = 'flex';
+        selectedFileName.textContent = selectedFile.name;
+      } else {
+        selectedFileBox.style.display = 'none';
+        selectedFileName.textContent = '';
+      }
+    });
+
+    removeFileBtn.addEventListener('click', function () {
+      selectedFile = null;
+      fileInput.value = '';
+      selectedFileBox.style.display = 'none';
+      selectedFileName.textContent = '';
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', function () {
+      const preview = document.getElementById('docPreview');
+      const inputText = document.getElementById('searchInput').value.trim();
+
+      let showAnalysis = false;
+
+      if (inputText) {
+        preview.innerHTML = `<pre>${inputText}</pre>`;
+        showAnalysis = true;
+      } else if (selectedFile) {
+        if (selectedFile.type === "text/plain") {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.innerHTML = `<pre>${e.target.result}</pre>`;
+            setAnalysisContent(true);
+          };
+          reader.readAsText(selectedFile);
+          showAnalysis = true;
+        } else if (selectedFile.type === "application/pdf") {
+          preview.innerHTML = `<iframe src="${URL.createObjectURL(selectedFile)}" style="width:100%;height:100%;min-height:400px;max-height:600px;background:#fff;border:none;border-radius:10px;"></iframe>`;
+          showAnalysis = true;
+        } else {
+          preview.innerHTML = `<p>Unsupported file type. Please upload a PDF or TXT file.</p>`;
+          showAnalysis = false;
+        }
+      } else {
+        preview.innerHTML = `<p style="color:#888;">Your document preview will appear here.</p>`;
+        showAnalysis = false;
+      }
+
+      setAnalysisContent(showAnalysis);
+    });
+
+    // Refresh main.html when New Chat is clicked
+    document.getElementById('newChatBtn').addEventListener('click', function () {
+      window.location.href = "main.html";
+    });
+
+    // On page load, analysis section is blank and toggle button hidden
+    setAnalysisContent(false);
+  </script>
+</body>
+
+</html>
